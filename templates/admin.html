@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Manage wishes{% endblock %}
+{% block body %}
+<main class="panel">
+  <div class="bar">
+    <h1>Manage wishes</h1>
+    <span>
+      <a class="btn ghost" href="{{ url_for('index') }}">View site</a>
+      <form method="post" action="{{ url_for('admin.logout') }}" class="inline">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <button class="btn ghost">Sign out</button>
+      </form>
+    </span>
+  </div>
+
+  <h2>{{ 'Edit wish' if wish else 'Add a wish' }}</h2>
+  <form method="post" enctype="multipart/form-data" class="stack"
+        action="{{ url_for('admin.edit', wish_id=wish.id) if wish else url_for('admin.add') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Title <input name="title" maxlength="80" required value="{{ form.title or '' }}"></label>
+    <label>Price <input name="price" maxlength="30" placeholder="e.g. 49,95 €" value="{{ form.price or '' }}"></label>
+    <label>Link <input type="url" name="link" required placeholder="https://" value="{{ form.link or '' }}"></label>
+    <label>Cover image (JPG, PNG or WebP, max 8 MB){% if wish %} – leave empty to keep the current one{% endif %}
+      <input type="file" name="image" accept="image/jpeg,image/png,image/webp" {{ '' if wish else 'required' }}></label>
+    <label>Text (optional, e.g. size or colour) <input name="note" maxlength="200" value="{{ form.note or '' }}"></label>
+    <div>
+      <button class="btn">{{ 'Save changes' if wish else 'Add wish' }}</button>
+      {% if wish %}<a class="btn ghost" href="{{ url_for('admin.panel') }}">Cancel</a>{% endif %}
+    </div>
+  </form>
+
+  <h2>Your wishes</h2>
+  <ul class="list">
+    {% for w in wishes %}
+    <li>
+      <img src="{{ url_for('uploads', filename=w.image) }}" alt="">
+      <span><strong>{{ w.title }}</strong><br>{{ w.price }}</span>
+      <span class="actions">
+        <a class="btn ghost" href="{{ url_for('admin.edit', wish_id=w.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('admin.delete', wish_id=w.id) }}" class="inline"
+              data-confirm="Delete &quot;{{ w.title }}&quot;?">
+          <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <button class="btn danger">Delete</button>
+        </form>
+      </span>
+    </li>
+    {% else %}<li>No wishes yet.</li>{% endfor %}
+  </ul>
+</main>
+{% endblock %}

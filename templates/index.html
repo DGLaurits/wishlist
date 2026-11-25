@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="winter-page">
+<div class="snowfall" aria-hidden="true"></div>
+<header class="hero">
+  <h1><span class="title-initial"><img class="nissehue" src="{{ url_for('static', filename='svg/nissehue.svg') }}" alt="" aria-hidden="true">L</span>aurits' ønsker i år</h1>
+  <p>Hej kære familie. Som altid er det svært at finde ting, man mangler. Men i år lykkedes det dog endnu en gang:)</p>
+</header>
+<main class="grid">
+  {% for w in wishes %}
+  <article class="card{% if w.reserved %} reserved{% endif %}" id="w-{{ w.id }}">
+    <div class="card-content">
+      <div class="thumb">
+        <img src="{{ url_for('uploads', filename=w.image) }}" alt="" loading="lazy">
+        {% if w.reserved %}<span class="stamp">RESERVERET</span>{% endif %}
+      </div>
+      <div class="body">
+        <h2><a class="stretch" href="{{ w.link }}" target="_blank" rel="noopener noreferrer nofollow">{{ w.title }}</a></h2>
+        {% if w.price %}<p class="price">{{ w.price }}</p>{% endif %}
+        {% if w.note %}<p class="note">{{ w.note }}</p>{% endif %}
+        <form method="post" action="{{ url_for('reserve', wish_id=w.id) }}">
+          <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          {% if w.reserved %}
+          <input type="hidden" name="action" value="release">
+          <button class="btn ghost">Annuller reservation</button>
+          {% else %}
+          <input type="hidden" name="action" value="reserve">
+          <button class="btn">Reserver gaven</button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <p class="empty">Årh, jeg har ikke lige fået tilføjet nogle ønsker endnu.</p>
+  {% endfor %}
+</main>
+<div class="winter-scene" aria-hidden="true">
+  <img class="snowbank" src="{{ url_for('static', filename='svg/snowbank.svg') }}" alt="">
+  <img class="winter-scene-item snowman" src="{{ url_for('static', filename='svg/snowman.svg') }}" alt="">
+  <img class="winter-scene-item sledge" src="{{ url_for('static', filename='svg/sledge.svg') }}" alt="">
+  <img class="winter-scene-item skis" src="{{ url_for('static', filename='svg/skis.svg') }}" alt="">
+</div>
+</div>
+{% endblock %}
