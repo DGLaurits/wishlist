@@ -47,7 +47,7 @@ a { color: inherit; }
   left: -.2em; top: -0.25em; pointer-events: none; transform: rotate(-12deg); }
 .hero p { position: relative; z-index: 1; max-width: 38ch; margin: .75rem auto 0;
   color: var(--card); font: 400 1.1rem/1.6 Nunito, var(--sans); }
-
+.hero i { font-size: 0.85em; opacity: 0.7; }
 .grid { width: 100%; max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 4rem; flex: 1;
   display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 .card { position: relative; z-index: 1; background: var(--card); border: 1px solid var(--line);
