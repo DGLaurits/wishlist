@@ -11,7 +11,7 @@
   <article class="card{% if w.reserved %} reserved{% endif %}" id="w-{{ w.id }}">
     <div class="card-content">
       <div class="thumb">
-        <img src="{{ url_for('uploads', filename=w.image) }}" alt="" loading="lazy">
+        <img class="thumb-image" src="{{ url_for('uploads', filename=w.image) }}" alt="" loading="lazy">
         {% if w.reserved %}<span class="stamp">RESERVERET</span>{% endif %}
       </div>
       <div class="body">

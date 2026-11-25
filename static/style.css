@@ -56,8 +56,10 @@ a { color: inherit; }
 .card:hover { border-color: var(--accent); }
 .card-content { display: flex; flex-direction: column; flex: 1 0 auto;
   height: calc(75cqi + 10rem); min-height: min-content; }
-.thumb { position: relative; flex: 1 1 0; min-height: 3rem; width: 100%; overflow: hidden; background: var(--line); }
-.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb { position: relative; flex: 1 1 0; min-height: 3rem; width: 100%; overflow: hidden;
+  background: linear-gradient(145deg, #f1f4ef, #e6ede7); }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  object-fit: contain; padding: 0.5rem; }
 .body { padding: .9rem 1rem 1rem; display: flex; flex-direction: column; gap: .35rem;
   flex: none; overflow-wrap: anywhere; }
 .body h2 { font-size: 1.2rem; }
@@ -69,8 +71,9 @@ a { color: inherit; }
 
 .card.reserved { background: #e9ecea; border-color: #c9d0cc; }
 .card.reserved:hover { border-color: var(--muted); }
-.card.reserved .thumb { background: #dce1de; }
-.card.reserved .thumb img { opacity: .65; filter: grayscale(1); }
+.card.reserved .thumb { background: linear-gradient(145deg, #e1e6e2, #d7dfda); }
+.card.reserved .thumb img { opacity: .65; }
+.card.reserved .thumb-image { filter: grayscale(1); }
 .card.reserved .body h2, .card.reserved .price, .card.reserved .note { color: #414e48; }
 .stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg);
   color: var(--red); border: 3px solid var(--red); border-radius: 6px; padding: .15em .6em;
