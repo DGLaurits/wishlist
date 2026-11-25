@@ -5,9 +5,6 @@ After=network.target
 [Service]
 User=wishlist
 WorkingDirectory=/opt/wishlist
-# Pick your own secret login path and title:
-Environment=WISHLIST_ADMIN_PATH=pick-something-long-and-random
-Environment="WISHLIST_TITLE=My Wishlist"
 # ONE worker on purpose: the file lock and login rate limit live in memory.
 ExecStart=/opt/wishlist/venv/bin/gunicorn --workers 1 --threads 4 --bind 127.0.0.1:8000 app:app
 Restart=on-failure

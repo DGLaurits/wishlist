@@ -16,6 +16,7 @@
       </div>
       <div class="body">
         <h2><a class="stretch" href="{{ w.link }}" target="_blank" rel="noopener noreferrer nofollow">{{ w.title }}</a></h2>
+        {% if w.store %}<p class="note">Butik: {{ w.store }}</p>{% endif %}
         {% if w.price %}<p class="price">{{ w.price }}</p>{% endif %}
         {% if w.note %}<p class="note">{{ w.note }}</p>{% endif %}
         <form method="post" action="{{ url_for('reserve', wish_id=w.id) }}">

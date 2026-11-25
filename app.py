@@ -49,11 +49,16 @@ FAILS = {}               # ip -> timestamps of failed logins
 
 
 # ---- Storage ---------------------------------------------------------------
-def load():
+def load_wishes():
     try:
         return json.loads(WISHES_FILE.read_text("utf-8"))
     except FileNotFoundError:
         return []
+
+
+def sort_wishes(wishes):
+    return sorted(wishes, key=lambda w: (
+        w["reserved"], not w.get("store"), w.get("store", "").casefold()))
 
 
 def save(wishes):
@@ -86,11 +91,14 @@ def save_image(file):
 
 def read_form(require_image):
     f = request.form
-    title, price, link, note = (f.get(k, "").strip() for k in ("title", "price", "link", "note"))
+    title, price, link, note, store = (
+        f.get(k, "").strip() for k in ("title", "price", "link", "note", "store"))
     if not title or len(title) > 80:
         return None, "Title is required (max 80 characters)."
     if len(price) > 30:
         return None, "Price is too long (max 30 characters)."
+    if len(store) > 80:
+        return None, "Store is too long (max 80 characters)."
     u = urlparse(link)
     if u.scheme not in ("http", "https") or not u.netloc or len(link) > 800:
         return None, "Link must be a full address starting with http:// or https://"
@@ -106,7 +114,7 @@ def read_form(require_image):
             image = save_image(file)
         except ValueError as e:
             return None, str(e)
-    return dict(title=title, price=price, link=link, note=note, image=image), None
+    return dict(title=title, price=price, link=link, note=note, store=store, image=image), None
 
 
 # ---- Security helpers --------------------------------------------------------
@@ -170,7 +178,7 @@ def login_required(fn):
 # ---- Public pages --------------------------------------------------------------
 @app.route("/")
 def index():
-    wishes = sorted(load(), key=lambda w: w["reserved"])  # reserved ones sink to the bottom
+    wishes = sort_wishes(load_wishes())
     return render_template("index.html", wishes=wishes)
 
 
@@ -178,7 +186,7 @@ def index():
 def reserve(wish_id):
     want = request.form.get("action") == "reserve"
     with LOCK:
-        wishes = load()
+        wishes = load_wishes()
         wish = next((w for w in wishes if w["id"] == wish_id), None)
         if not wish:
             abort(404)
@@ -225,7 +233,7 @@ def logout():
 @admin.route("/panel")
 @login_required
 def panel():
-    return render_template("admin.html", wishes=load(), wish=None, form={})
+    return render_template("admin.html", wishes=sort_wishes(load_wishes()), wish=None, form={})
 
 
 @admin.post("/add")
@@ -234,9 +242,9 @@ def add():
     data, err = read_form(require_image=True)
     if err:
         flash(err)
-        return render_template("admin.html", wishes=load(), wish=None, form=request.form), 400
+        return render_template("admin.html", wishes=sort_wishes(load_wishes()), wish=None, form=request.form), 400
     with LOCK:
-        wishes = load()
+        wishes = load_wishes()
         wishes.insert(0, dict(id=secrets.token_hex(6), reserved=False, **data))
         save(wishes)
     flash("Wish added.")
@@ -246,18 +254,18 @@ def add():
 @admin.route("/edit/<wish_id>", methods=["GET", "POST"])
 @login_required
 def edit(wish_id):
-    wishes = load()
+    wishes = load_wishes()
     wish = next((w for w in wishes if w["id"] == wish_id), None)
     if not wish:
         abort(404)
     if request.method == "GET":
-        return render_template("admin.html", wishes=wishes, wish=wish, form=wish)
+        return render_template("admin.html", wishes=sort_wishes(wishes), wish=wish, form=wish)
     data, err = read_form(require_image=False)
     if err:
         flash(err)
-        return render_template("admin.html", wishes=wishes, wish=wish, form=request.form), 400
+        return render_template("admin.html", wishes=sort_wishes(wishes), wish=wish, form=request.form), 400
     with LOCK:
-        wishes = load()
+        wishes = load_wishes()
         wish = next(w for w in wishes if w["id"] == wish_id)
         new_image = data.pop("image")
         if new_image:
@@ -273,7 +281,7 @@ def edit(wish_id):
 @login_required
 def delete(wish_id):
     with LOCK:
-        wishes = load()
+        wishes = load_wishes()
         wish = next((w for w in wishes if w["id"] == wish_id), None)
         if wish:
             delete_image(wish["image"])
